@@ -14,6 +14,7 @@ import '../utils/helper.dart';
 import 'constant.dart';
 import 'continuations.dart';
 import 'nav_parser.dart';
+import 'ytm_auth_service.dart';
 
 enum AudioQuality { Low, High }
 
@@ -113,6 +114,23 @@ class MusicServices extends getx.GetxService {
     }
   }
 
+  /// Auth başlıklarını mevcut _headers üzerine ekler ve döndürür.
+  /// Cookie yoksa _headers'ı değiştirmeden döndürür (anonim mod).
+  Map<String, String> _buildHeaders() {
+    final authSvc = getx.Get.find<YtmAuthService>();
+    final cookie = authSvc.storedCookie;
+    if (cookie == null) return _headers;
+
+    final authHeader = authSvc.buildAuthHeader(cookie);
+    return {
+      ..._headers,
+      'Cookie': cookie,
+      if (authHeader.isNotEmpty) 'Authorization': authHeader,
+      'X-Goog-AuthUser': '0',
+      'X-Origin': domain.replaceAll(RegExp(r'/$'), ''),
+    };
+  }
+
   Future<Response> _sendRequest(
     String action,
     Map<dynamic, dynamic> data, {
@@ -123,11 +141,10 @@ class MusicServices extends getx.GetxService {
         'YouTube Music requests are not available in the browser; use Invidious.',
       );
     }
-    //print("$baseUrl$action$fixedParms$additionalParams          data:$data");
     try {
       final response = await dio.post(
         "$baseUrl$action$fixedParms$additionalParams",
-        options: Options(headers: _headers),
+        options: Options(headers: _buildHeaders()),
         data: data,
       );
 
