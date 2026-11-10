@@ -5,138 +5,17 @@ import 'package:get/get.dart';
 import '../../utils/helper.dart';
 import '/services/music_service.dart';
 import '/services/ytm_auth_service.dart';
-import '../screens/Settings/settings_screen_controller.dart';
 import 'common_dialog_widget.dart';
 import 'modified_text_field.dart';
 import 'snackbar.dart';
 
-// ── Controller ───────────────────────────────────────────────────────────────
+// ── Saf veri sınıfı (GetxController değil) ───────────────────────────────────
 
-class LinkYtmController extends GetxController {
-  final cookieController = TextEditingController();
-  final errorText = ''.obs;
-  final loading = false.obs;
-  final howToVisible = false.obs;
-
-  @override
-  void onClose() {
-    cookieController.dispose();
-    super.onClose();
-  }
-
-  Future<void> connect() async {
-    final cookie = cookieController.text.trim();
-    final authSvc = Get.find<YtmAuthService>();
-
-    // 1. Format kontrolü
-    if (!authSvc.validateCookieFormat(cookie)) {
-      errorText.value = 'ytmInvalidCookie'.tr;
-      return;
-    }
-
-    errorText.value = '';
-    loading.value = true;
-
-    try {
-      // 2. Hesap adını doğrula
-      final name = await _fetchAccountName(cookie);
-
-      // 3. Kaydet
-      await authSvc.saveCredentials(cookie: cookie, name: name);
-
-      Get.find<SettingsScreenController>().ytmLinkLoading.value = false;
-      Navigator.of(Get.context!).pop();
-
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        snackbar(Get.context!, 'ytmConnectSuccess'.tr,
-            size: SanckBarSize.MEDIUM),
-      );
-    } on _AuthException catch (e) {
-      // Cookie geçerli format fakat sunucu 401/403 döndü
-      errorText.value = e.message;
-    } catch (e) {
-      // Ağ hatası vb. — değeri loglama
-      errorText.value = 'networkError1'.tr;
-      printINFO('YTM doğrulama hatası: [gizli]');
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  /// account/account_menu browse isteği.
-  /// ytmusicapi referansına göre giriş yapmış kullanıcıda hesap adı buradan gelir.
-  Future<String> _fetchAccountName(String cookie) async {
-    final authSvc = Get.find<YtmAuthService>();
-    final musicSvc = Get.find<MusicServices>();
-
-    final authHeader = authSvc.buildAuthHeader(cookie);
-
-    final headers = {
-      'accept': '*/*',
-      'content-type': 'application/json',
-      'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-      'origin': 'https://music.youtube.com',
-      'x-origin': 'https://music.youtube.com',
-      'Cookie': cookie,
-      if (authHeader.isNotEmpty) 'Authorization': authHeader,
-      'X-Goog-AuthUser': '0',
-    };
-
-    const url =
-        'https://music.youtube.com/youtubei/v1/account/account_menu?prettyPrint=false&alt=json&key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30';
-
-    final body = {
-      'context': {
-        'client': {
-          'clientName': 'WEB_REMIX',
-          'clientVersion': '1.20230213.01.00',
-        },
-        'user': {},
-      },
-    };
-
-    dio_pkg.Response response;
-    try {
-      response = await musicSvc.dio.post(
-        url,
-        options: dio_pkg.Options(headers: headers),
-        data: body,
-      );
-    } on dio_pkg.DioException catch (e) {
-      final code = e.response?.statusCode;
-      if (code == 401 || code == 403) throw _AuthException('ytmAuthFailed'.tr);
-      rethrow;
-    }
-
-    if (response.statusCode == 401 || response.statusCode == 403) {
-      throw _AuthException('ytmAuthFailed'.tr);
-    }
-
-    // Hesap adını yanıttan çıkar
-    try {
-      final data = response.data;
-      // actions > openPopupAction > popup > multiPageMenuRenderer > header >
-      // activeAccountHeaderRenderer > accountName > runs[0] > text
-      final actions = data['actions'] as List?;
-      if (actions != null && actions.isNotEmpty) {
-        final popup =
-            actions[0]?['openPopupAction']?['popup'];
-        final header = popup?['multiPageMenuRenderer']?['header']
-            ?['activeAccountHeaderRenderer'];
-        if (header != null) {
-          final runs = header['accountName']?['runs'] as List?;
-          if (runs != null && runs.isNotEmpty) {
-            final name = runs[0]['text']?.toString() ?? '';
-            if (name.isNotEmpty) return name;
-          }
-        }
-      }
-    } catch (_) {}
-
-    // Yanıt yapısı farklıysa giriş başarılı ama ad çıkarılamadı
-    return 'YouTube';
-  }
+class _YtmLinkState {
+  final cookieCtrl = TextEditingController();
+  String errorText = '';
+  bool loading = false;
+  bool howToVisible = false;
 }
 
 class _AuthException implements Exception {
@@ -144,17 +23,152 @@ class _AuthException implements Exception {
   final String message;
 }
 
-// ── Widget ───────────────────────────────────────────────────────────────────
+// ── Hesap adı çekme (bağımsız fonksiyon) ─────────────────────────────────────
 
-class LinkYtmAccount extends StatelessWidget {
+/// account/account_menu browse isteği.
+/// Cookie ham değeri sadece istek başlığına gider, hiçbir yere loglanmaz.
+Future<String> _fetchAccountName(String cookie) async {
+  final authSvc = Get.find<YtmAuthService>();
+  final musicSvc = Get.find<MusicServices>();
+  final authHeader = authSvc.buildAuthHeader(cookie);
+
+  final headers = {
+    'accept': '*/*',
+    'content-type': 'application/json',
+    'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+            '(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+    'origin': 'https://music.youtube.com',
+    'x-origin': 'https://music.youtube.com',
+    'Cookie': cookie,
+    if (authHeader.isNotEmpty) 'Authorization': authHeader,
+    'X-Goog-AuthUser': '0',
+  };
+
+  const url = 'https://music.youtube.com/youtubei/v1/account/account_menu'
+      '?prettyPrint=false&alt=json&key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30';
+
+  final body = {
+    'context': {
+      'client': {
+        'clientName': 'WEB_REMIX',
+        'clientVersion': '1.20230213.01.00',
+      },
+      'user': {},
+    },
+  };
+
+  dio_pkg.Response response;
+  try {
+    response = await musicSvc.dio.post(
+      url,
+      options: dio_pkg.Options(headers: headers),
+      data: body,
+    );
+  } on dio_pkg.DioException catch (e) {
+    final code = e.response?.statusCode;
+    if (code == 401 || code == 403) throw _AuthException('ytmAuthFailed'.tr);
+    rethrow;
+  }
+
+  if (response.statusCode == 401 || response.statusCode == 403) {
+    throw _AuthException('ytmAuthFailed'.tr);
+  }
+
+  // Hesap adını yanıttan çıkar
+  try {
+    final data = response.data;
+    final actions = data['actions'] as List?;
+    if (actions != null && actions.isNotEmpty) {
+      final popup = actions[0]?['openPopupAction']?['popup'];
+      final header = popup?['multiPageMenuRenderer']?['header']
+          ?['activeAccountHeaderRenderer'];
+      if (header != null) {
+        final runs = header['accountName']?['runs'] as List?;
+        if (runs != null && runs.isNotEmpty) {
+          final name = runs[0]['text']?.toString() ?? '';
+          if (name.isNotEmpty) return name;
+        }
+      }
+    }
+  } catch (_) {}
+
+  return 'YouTube';
+}
+
+// ── Widget (StatefulWidget — hiç GetxController yok) ─────────────────────────
+
+class LinkYtmAccount extends StatefulWidget {
   const LinkYtmAccount({super.key});
 
   @override
+  State<LinkYtmAccount> createState() => _LinkYtmAccountState();
+}
+
+class _LinkYtmAccountState extends State<LinkYtmAccount> {
+  final _state = _YtmLinkState();
+
+  @override
+  void dispose() {
+    _state.cookieCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _connect() async {
+    final cookie = _state.cookieCtrl.text.trim();
+    final authSvc = Get.find<YtmAuthService>();
+
+    // 1. Format kontrolü
+    if (!authSvc.validateCookieFormat(cookie)) {
+      setState(() => _state.errorText = 'ytmInvalidCookie'.tr);
+      return;
+    }
+
+    setState(() {
+      _state.errorText = '';
+      _state.loading = true;
+    });
+
+    try {
+      // 2. Hesap adını doğrula
+      final name = await _fetchAccountName(cookie);
+
+      // 3. Dialogo ÖNCE kapat, SONRA kaydet — build scope hatalarından kaçın
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      // 4. Pop tamamlandıktan sonraki frame'de kaydet + snackbar
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await authSvc.saveCredentials(cookie: cookie, name: name);
+        final ctx = Get.context;
+        if (ctx != null && ctx.mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            snackbar(ctx, 'ytmConnectSuccess'.tr, size: SanckBarSize.MEDIUM),
+          );
+        }
+      });
+    } on _AuthException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _state.errorText = e.message;
+        _state.loading = false;
+      });
+    } catch (_) {
+      // Ağ hatası vb. — değeri loglama
+      printINFO('YTM doğrulama hatası: [gizli]');
+      if (!mounted) return;
+      setState(() {
+        _state.errorText = 'networkError1'.tr;
+        _state.loading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(LinkYtmController());
     return CommonDialog(
-      child: Obx(
-        () => Container(
+      child: SingleChildScrollView(
+        child: Container(
           padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 28),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -169,24 +183,24 @@ class LinkYtmAccount extends StatelessWidget {
 
               // Yapıştırma kutusu
               ModifiedTextField(
-                controller: ctrl.cookieController,
+                controller: _state.cookieCtrl,
                 decoration: InputDecoration(
                   hintText: 'ytmPasteHint'.tr,
                   labelText: 'ytmPasteLabel'.tr,
                 ),
                 onChanged: (_) {
-                  if (ctrl.errorText.value.isNotEmpty) {
-                    ctrl.errorText.value = '';
+                  if (_state.errorText.isNotEmpty) {
+                    setState(() => _state.errorText = '');
                   }
                 },
               ),
 
               // Hata mesajı
-              if (ctrl.errorText.value.isNotEmpty)
+              if (_state.errorText.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    ctrl.errorText.value,
+                    _state.errorText,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall!
@@ -199,11 +213,11 @@ class LinkYtmAccount extends StatelessWidget {
               // "Nasıl alınır?" açılır yardım
               InkWell(
                 onTap: () =>
-                    ctrl.howToVisible.value = !ctrl.howToVisible.value,
+                    setState(() => _state.howToVisible = !_state.howToVisible),
                 child: Row(
                   children: [
                     Icon(
-                      ctrl.howToVisible.isTrue
+                      _state.howToVisible
                           ? Icons.expand_less
                           : Icons.expand_more,
                       size: 18,
@@ -216,7 +230,7 @@ class LinkYtmAccount extends StatelessWidget {
                   ],
                 ),
               ),
-              if (ctrl.howToVisible.isTrue)
+              if (_state.howToVisible)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
@@ -232,20 +246,19 @@ class LinkYtmAccount extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: ctrl.loading.isTrue
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed:
+                        _state.loading ? null : () => Navigator.of(context).pop(),
                     child: Text('cancel'.tr),
                   ),
                   const SizedBox(width: 8),
-                  ctrl.loading.isTrue
+                  _state.loading
                       ? const SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : ElevatedButton(
-                          onPressed: ctrl.connect,
+                          onPressed: _connect,
                           child: Text('ytmLink'.tr),
                         ),
                 ],

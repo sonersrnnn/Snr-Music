@@ -374,9 +374,6 @@ class SettingsScreen extends StatelessWidget {
                                         context: context,
                                         builder: (_) =>
                                             const LinkYtmAccount(),
-                                      ).whenComplete(
-                                        () => Get.delete<
-                                            LinkYtmController>(),
                                       );
                                     }
                                   },
