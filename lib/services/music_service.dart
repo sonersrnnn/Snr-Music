@@ -115,20 +115,26 @@ class MusicServices extends getx.GetxService {
   }
 
   /// Auth başlıklarını mevcut _headers üzerine ekler ve döndürür.
-  /// Cookie yoksa _headers'ı değiştirmeden döndürür (anonim mod).
+  /// Servis kayıtlı değilse veya cookie yoksa _headers'ı değiştirmeden
+  /// döndürür (anonim mod). Auth hatası asla ana sayfa isteğini düşürmesin.
   Map<String, String> _buildHeaders() {
-    final authSvc = getx.Get.find<YtmAuthService>();
-    final cookie = authSvc.storedCookie;
-    if (cookie == null) return _headers;
+    try {
+      final authSvc = getx.Get.find<YtmAuthService>();
+      final cookie = authSvc.storedCookie;
+      if (cookie == null) return _headers;
 
-    final authHeader = authSvc.buildAuthHeader(cookie);
-    return {
-      ..._headers,
-      'Cookie': cookie,
-      if (authHeader.isNotEmpty) 'Authorization': authHeader,
-      'X-Goog-AuthUser': '0',
-      'X-Origin': domain.replaceAll(RegExp(r'/$'), ''),
-    };
+      final authHeader = authSvc.buildAuthHeader(cookie);
+      return {
+        ..._headers,
+        'Cookie': cookie,
+        if (authHeader.isNotEmpty) 'Authorization': authHeader,
+        'X-Goog-AuthUser': '0',
+        'X-Origin': domain.replaceAll(RegExp(r'/$'), ''),
+      };
+    } catch (_) {
+      // Servis henüz başlatılmadıysa veya box kapalıysa anonim devam et.
+      return _headers;
+    }
   }
 
   Future<Response> _sendRequest(

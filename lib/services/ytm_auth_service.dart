@@ -8,20 +8,26 @@ import 'package:hive/hive.dart';
 
 /// Hive box adı — AppPrefs'ten kasıtlı olarak ayrı tutulur.
 /// Bu box yedekleme ve dışa aktarma işlemlerinden HARİÇ tutulur.
+/// main.dart/initHive() tarafından uygulama başlarken açılır;
+/// servis bu box'a her zaman Hive.box() ile senkron erişir (openBox yok).
 const _kBoxName = 'ytmAuth';
 
 /// AppPrefs veya herhangi bir log'a cookie değeri yazılmaz.
 /// Hash üretiminde SAPISID yoksa __Secure-3PAPISID kullanılır.
 class YtmAuthService extends GetxService {
-  late Box _box;
-
   /// Reactive durum — UI bu değerleri izler.
   final isLinked = false.obs;
   final accountName = ''.obs;
 
+  /// Box'a senkron erişim — main.dart garantili açmış olmalı.
+  /// Box kapalıysa null döner; çağıranlar bunu kontrol eder.
+  Box? get _box {
+    if (Hive.isBoxOpen(_kBoxName)) return Hive.box(_kBoxName);
+    return null;
+  }
+
   @override
-  Future<void> onInit() async {
-    _box = await Hive.openBox(_kBoxName);
+  void onInit() {
     _restoreState();
     super.onInit();
   }
@@ -29,13 +35,14 @@ class YtmAuthService extends GetxService {
   // ── Dahili yardımcılar ────────────────────────────────────────────────────
 
   void _restoreState() {
-    final stored = _box.get('cookie');
+    final box = _box;
+    if (box == null) return;
+    final stored = box.get('cookie');
     isLinked.value = stored != null && stored.toString().isNotEmpty;
-    accountName.value = _box.get('accountName') ?? '';
+    accountName.value = box.get('accountName') ?? '';
   }
 
   /// Cookie metninden SAPISID veya __Secure-3PAPISID değerini çıkarır.
-  /// Bulunan değeri döndürür; bulunamazsa null döner.
   String? _extractSapisid(String cookie) {
     for (final key in ['SAPISID', '__Secure-3PAPISID']) {
       final pattern = RegExp('(?:^|;)\\s*${RegExp.escape(key)}=([^;]+)');
@@ -58,9 +65,9 @@ class YtmAuthService extends GetxService {
 
   // ── Genel API ─────────────────────────────────────────────────────────────
 
-  /// Depolanmış cookie değerini döndürür; yoksa null.
+  /// Depolanmış cookie değerini döndürür; box kapalıysa veya kayıt yoksa null.
   String? get storedCookie {
-    final v = _box.get('cookie');
+    final v = _box?.get('cookie');
     return (v != null && v.toString().isNotEmpty) ? v.toString() : null;
   }
 
@@ -70,29 +77,28 @@ class YtmAuthService extends GetxService {
   }
 
   /// Cookie'yi saklar, hesap adını Hive'a yazar, reactive durumu günceller.
-  /// Dışarıdan sadece [AccountVerifier] çağırır.
   Future<void> saveCredentials({
     required String cookie,
     required String name,
   }) async {
     // Cookie ham string olarak saklanır — log satırı yok.
-    await _box.put('cookie', cookie);
-    await _box.put('accountName', name);
+    final box = _box;
+    if (box == null) return;
+    await box.put('cookie', cookie);
+    await box.put('accountName', name);
     isLinked.value = true;
     accountName.value = name;
   }
 
   /// Oturumu kapatır, Hive'daki verileri siler.
   Future<void> clearCredentials() async {
-    await _box.delete('cookie');
-    await _box.delete('accountName');
+    final box = _box;
+    if (box == null) return;
+    await box.delete('cookie');
+    await box.delete('accountName');
     isLinked.value = false;
     accountName.value = '';
   }
 
-  @override
-  Future<void> onClose() async {
-    await _box.close();
-    super.onClose();
-  }
+  // onClose'da box'u kapatmıyoruz — main.dart/Hive.close() halleder.
 }

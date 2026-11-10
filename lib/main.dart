@@ -48,6 +48,9 @@ Future<void> _startApplication() async {
     return;
   }
   _setAppInitPrefs();
+  // YtmAuthService Hive init bittikten hemen sonra senkron olarak kayıt edilir;
+  // lazyPut değil Get.put — MusicServices ilk isteğinde hazır olsun.
+  if (!GetPlatform.isWeb) Get.put(YtmAuthService(), permanent: true);
   startApplicationServices();
   Get.put<AudioHandler>(await initAudioService(), permanent: true);
   WidgetsBinding.instance.addObserver(LifecycleHandler());
@@ -125,7 +128,7 @@ class MyApp extends StatelessWidget {
 Future<void> startApplicationServices() async {
   Get.lazyPut(() => InvidiousService(), fenix: true);
   Get.lazyPut(() => PipedServices(), fenix: true);
-  Get.lazyPut(() => YtmAuthService(), fenix: true);
+  // YtmAuthService _startApplication() içinde Get.put ile erken kaydedildi.
   Get.lazyPut(() => MusicServices(), fenix: true);
   Get.lazyPut(() => ThemeController(), fenix: true);
   Get.lazyPut(() => PlayerController(), fenix: true);
