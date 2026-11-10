@@ -25,6 +25,7 @@ import 'utils/system_tray.dart';
 import 'utils/update_check_flag_file.dart';
 import 'services/backup_restore_service.dart';
 import 'services/backup_restore_journal.dart';
+import 'services/ytm_auth_service.dart';
 import 'ui/widgets/backup_recovery_screen.dart';
 
 Future<void> main() async {
@@ -124,6 +125,7 @@ class MyApp extends StatelessWidget {
 Future<void> startApplicationServices() async {
   Get.lazyPut(() => InvidiousService(), fenix: true);
   Get.lazyPut(() => PipedServices(), fenix: true);
+  Get.lazyPut(() => YtmAuthService(), fenix: true);
   Get.lazyPut(() => MusicServices(), fenix: true);
   Get.lazyPut(() => ThemeController(), fenix: true);
   Get.lazyPut(() => PlayerController(), fenix: true);
@@ -154,6 +156,8 @@ Future<void> initHive() async {
   await Hive.openBox("AppPrefs");
   await Hive.openBox("homeScreenData");
   await Hive.openBox("searchQuery");
+  // ytmAuth box'u ayrı tutulur — yedekleme ve dışa aktarma dışında bırakılır.
+  if (!GetPlatform.isWeb) await Hive.openBox('ytmAuth');
 }
 
 Future<BackupRestoreService> _backupRestoreService() async {
