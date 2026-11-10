@@ -12,6 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../utils/app_constants.dart';
 import '../../../utils/update_check_flag_file.dart';
 import '/services/piped_service.dart';
+import '/services/ytm_auth_service.dart';
 import '../Library/library_controller.dart';
 import '../../widgets/snackbar.dart';
 import '../../../utils/helper.dart';
@@ -39,6 +40,10 @@ class SettingsScreenController extends GetxController {
   final isNewVersionAvailable = false.obs;
   final isLinkedWithPiped = false.obs;
   final stopPlyabackOnSwipeAway = false.obs;
+  // YouTube hesap bağlama
+  final isLinkedWithYtm = false.obs;
+  final ytmAccountName = ''.obs;
+  final ytmLinkLoading = false.obs;
   final currentAppLanguageCode = "en".obs;
   final downloadLocationPath = "".obs;
   final exportLocationPath = "".obs;
@@ -170,6 +175,13 @@ class SettingsScreenController extends GetxController {
     final pipedSettings = setBox.get("piped");
     isLinkedWithPiped.value =
         pipedSettings is Map && pipedSettings['isLoggedIn'] == true;
+    // YTM durumu
+    final authSvc = Get.find<YtmAuthService>();
+    isLinkedWithYtm.value = authSvc.isLinked.value;
+    ytmAccountName.value = authSvc.accountName.value;
+    // YtmAuthService değişikliklerini Settings'e yansıt
+    ever(authSvc.isLinked, (v) => isLinkedWithYtm.value = v);
+    ever(authSvc.accountName, (v) => ytmAccountName.value = v);
     stopPlyabackOnSwipeAway.value =
         setBox.get('stopPlyabackOnSwipeAway') ?? false;
     if (GetPlatform.isAndroid) {
@@ -394,6 +406,13 @@ class SettingsScreenController extends GetxController {
       snackbar(Get.context!, "unlinkAlert".tr, size: SanckBarSize.MEDIUM),
     );
     box.close();
+  }
+
+  Future<void> unlinkYtm() async {
+    await Get.find<YtmAuthService>().clearCredentials();
+    ScaffoldMessenger.of(Get.context!).showSnackBar(
+      snackbar(Get.context!, 'ytmDisconnected'.tr, size: SanckBarSize.MEDIUM),
+    );
   }
 
   Future<void> resetAppSettingsToDefault() async {
