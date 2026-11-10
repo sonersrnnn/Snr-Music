@@ -127,7 +127,7 @@ class ThemeController extends GetxController {
           primarySwatch: primarySwatch,
         ),
         // accentColor: primarySwatch[200],
-        dialogTheme: DialogTheme(backgroundColor: primarySwatch[700]),
+        dialogTheme: DialogThemeData(backgroundColor: primarySwatch[700]),
         cardColor: primarySwatch[600],
         primaryColorLight: primarySwatch[400],
         primaryColorDark: primarySwatch[700],
@@ -360,7 +360,7 @@ class ThemeController extends GetxController {
           selectionColor: Colors.grey[400],
           selectionHandleColor: Colors.grey[400],
         ),
-        dialogTheme: DialogTheme(backgroundColor: Colors.grey[200]),
+        dialogTheme: DialogThemeData(backgroundColor: Colors.grey[200]),
         inputDecorationTheme: const InputDecorationTheme(
           focusColor: Colors.black,
           focusedBorder: UnderlineInputBorder(
