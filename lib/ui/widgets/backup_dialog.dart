@@ -173,7 +173,11 @@ class BackupDialogController extends GetxController {
 
   Future<void> scanFilesToBackup() async {
     final dbDir = await Get.find<SettingsScreenController>().dbDir;
-    filesToExport.addAll(await processDirectoryInIsolate(dbDir));
+    // ytmauth.hive hassas kimlik bilgileri içerir — yedeklemeye dahil edilmez.
+    filesToExport.addAll(
+      (await processDirectoryInIsolate(dbDir))
+          .where((p) => !p.toLowerCase().endsWith('ytmauth.hive')),
+    );
     if (isDownloadedfilesSeclected.value) {
       List<String> downlodedSongFilePaths = Hive.box("SongDownloads")
           .values

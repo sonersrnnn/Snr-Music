@@ -307,7 +307,11 @@ Future<PreparedBackup> _runPreparation(String archivePath, String stagePath,
       try {
         // Read the staged databases with recovery disabled. A corrupt Hive
         // file must not replace a working database or be silently truncated.
-        for (final relative in files.where((file) => file.endsWith('.hive'))) {
+        for (final relative in files.where(
+            (file) =>
+                file.endsWith('.hive') &&
+                // ytmauth.hive hassas kimlik bilgileri içerir — geri yüklemeye dahil edilmez.
+                !file.toLowerCase().endsWith('ytmauth.hive'))) {
           final box = await Hive.openBox(p.basenameWithoutExtension(relative),
               crashRecovery: false);
           await box.close();
