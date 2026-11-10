@@ -275,5 +275,19 @@
     "exportPlaylistCsvSubtitle": "Buraya aktarılamaz",
     "exportToYouTubeMusicSubtitle": "Çalma listenizdeki 50 şarkıdan kısa olanları mevcut kuyruğa ekleyecek, YtMusic'te açtıktan sonra çalma listesine eklemeyi/kaydetmeyi unutmayın",
     "keepScreenOnWhilePlaying": "Müzik çalarken ekranı açık tut",
-    "keepScreenOnWhilePlayingDes": "Etkinleştirildiğinde, müzik çalarken cihazın ekranı açık kalır"
+    "keepScreenOnWhilePlayingDes": "Etkinleştirildiğinde, müzik çalarken cihazın ekranı açık kalır",
+    "ytmAccount": "YouTube Hesabı",
+    "ytmAccountDes": "Kişisel kütüphanenize erişmek için YouTube Music çerezinizle giriş yapın",
+    "ytmLink": "Bağla",
+    "ytmUnlink": "Bağlantıyı Kes",
+    "ytmConnected": "Bağlı: {name}",
+    "ytmPasteHint": "Cookie başlık değerini buraya yapıştırın",
+    "ytmPasteLabel": "Cookie Başlığı",
+    "ytmConnecting": "Doğrulanıyor…",
+    "ytmInvalidCookie": "Yapıştırılan çerezde SAPISID veya __Secure-3PAPISID bulunamadı. Lütfen YouTube Music'ten Cookie istek başlığının tamamını kopyalayın.",
+    "ytmAuthFailed": "Kimlik doğrulama başarısız (401/403). Çerez süresi dolmuş veya geçersiz olabilir.",
+    "ytmConnectSuccess": "YouTube Music'e bağlandı",
+    "ytmDisconnected": "YouTube hesabı bağlantısı kesildi",
+    "ytmHowToTitle": "Çerez Nasıl Alınır?",
+    "ytmHowTo": "1. Tarayıcınızda music.youtube.com'u açın\n2. DevTools → Network sekmesini açın\n3. Herhangi bir isteğe tıklayın\n4. Cookie istek başlığının tam değerini kopyalayın\n5. Buraya yapıştırın"
 }
