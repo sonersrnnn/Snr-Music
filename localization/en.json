@@ -295,7 +295,7 @@
     "ytmAccountDes": "Sign in with your YouTube Music cookies to access your personal library",
     "ytmLink": "Connect",
     "ytmUnlink": "Disconnect",
-    "ytmConnected": "Connected: {name}",
+    "ytmConnected": "Connected: @name",
     "ytmPasteHint": "Paste Cookie header value here",
     "ytmPasteLabel": "Cookie Header",
     "ytmConnecting": "Verifying…",

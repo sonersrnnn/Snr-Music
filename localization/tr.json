@@ -280,7 +280,7 @@
     "ytmAccountDes": "Kişisel kütüphanenize erişmek için YouTube Music çerezinizle giriş yapın",
     "ytmLink": "Bağla",
     "ytmUnlink": "Bağlantıyı Kes",
-    "ytmConnected": "Bağlı: {name}",
+    "ytmConnected": "Bağlı: @name",
     "ytmPasteHint": "Cookie başlık değerini buraya yapıştırın",
     "ytmPasteLabel": "Cookie Başlığı",
     "ytmConnecting": "Doğrulanıyor…",
