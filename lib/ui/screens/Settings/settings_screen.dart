@@ -13,6 +13,7 @@ import '../../widgets/restore_dialog.dart';
 import '../Library/library_controller.dart';
 import '../../widgets/snackbar.dart';
 import '/ui/widgets/link_piped.dart';
+import '/ui/widgets/link_ytm_account.dart';
 import '/services/music_service.dart';
 import '/ui/player/player_controller.dart';
 import '/ui/utils/theme_controller.dart';
@@ -336,6 +337,61 @@ class SettingsScreen extends StatelessWidget {
                                     size: SanckBarSize.BIG)));
                       },
                     ),
+                    // YouTube hesap bağlama — yalnızca masaüstü, web dışı
+                    if (isDesktop)
+                      Obx(() {
+                        final linked =
+                            settingsController.isLinkedWithYtm.isTrue;
+                        return ListTile(
+                          contentPadding:
+                              const EdgeInsets.only(left: 5, right: 10),
+                          title: Text('ytmAccount'.tr),
+                          subtitle: linked
+                              ? Text(
+                                  'ytmConnected'
+                                      .trParams({'name': settingsController.ytmAccountName.value}),
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium,
+                                )
+                              : Text(
+                                  'ytmAccountDes'.tr,
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium,
+                                ),
+                          trailing: settingsController.ytmLinkLoading.isTrue
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2),
+                                )
+                              : TextButton(
+                                  onPressed: () {
+                                    if (linked) {
+                                      settingsController.unlinkYtm();
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) =>
+                                            const LinkYtmAccount(),
+                                      ).whenComplete(
+                                        () => Get.delete<
+                                            LinkYtmController>(),
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    linked
+                                        ? 'ytmUnlink'.tr
+                                        : 'ytmLink'.tr,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .copyWith(fontSize: 15),
+                                  ),
+                                ),
+                        );
+                      }),
                   ]),
               if (GetPlatform.isWeb)
                 CustomExpansionTile(
