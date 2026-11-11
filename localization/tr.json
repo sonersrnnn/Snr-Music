@@ -300,5 +300,9 @@
     "ytmLikeFailed": "YouTube beğenisi güncellenemedi",
     "ytmRequestFailed": "YouTube isteği başarısız",
     "ytmLibraryLoading": "YouTube Music kütüphanesi yükleniyor...",
-    "ytmSessionExpired": "YouTube oturumu sona erdi. Lütfen Ayarlar'dan yeniden bağlanın."
+    "ytmSessionExpired": "YouTube oturumu sona erdi. Lütfen Ayarlar'dan yeniden bağlanın.",
+    "ytmLoginTitle": "YouTube Music Girişi",
+    "ytmLoginCancelled": "Giriş iptal edildi",
+    "ytmManualPasteFallback": "Bunun yerine çerezi elle yapıştır",
+    "ytmCookieNotFound": "Geçerli bir YouTube oturum çerezi bulunamadı. Lütfen girişi tamamlayın veya elle yapıştırmayı deneyin."
 }

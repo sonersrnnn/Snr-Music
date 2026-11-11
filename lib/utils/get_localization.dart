@@ -2079,7 +2079,11 @@ Map<String, Map<String, String>> get keys => {
     "ytmLikeFailed": "Could not update YouTube like",
     "ytmRequestFailed": "YouTube request failed",
     "ytmLibraryLoading": "Loading YouTube Music library...",
-    "ytmSessionExpired": "YouTube session expired. Please reconnect in Settings."
+    "ytmSessionExpired": "YouTube session expired. Please reconnect in Settings.",
+    "ytmLoginTitle": "Sign in to YouTube Music",
+    "ytmLoginCancelled": "Login cancelled",
+    "ytmManualPasteFallback": "Paste cookie manually instead",
+    "ytmCookieNotFound": "No valid YouTube session cookie found. Please complete login or try pasting manually."
 },"eo" : {
     "renamePlaylist": "Alinomi Ludliston",
     "trending": "Populara",
@@ -9044,7 +9048,11 @@ Map<String, Map<String, String>> get keys => {
     "ytmLikeFailed": "YouTube beğenisi güncellenemedi",
     "ytmRequestFailed": "YouTube isteği başarısız",
     "ytmLibraryLoading": "YouTube Music kütüphanesi yükleniyor...",
-    "ytmSessionExpired": "YouTube oturumu sona erdi. Lütfen Ayarlar'dan yeniden bağlanın."
+    "ytmSessionExpired": "YouTube oturumu sona erdi. Lütfen Ayarlar'dan yeniden bağlanın.",
+    "ytmLoginTitle": "YouTube Music Girişi",
+    "ytmLoginCancelled": "Giriş iptal edildi",
+    "ytmManualPasteFallback": "Bunun yerine çerezi elle yapıştır",
+    "ytmCookieNotFound": "Geçerli bir YouTube oturum çerezi bulunamadı. Lütfen girişi tamamlayın veya elle yapıştırmayı deneyin."
 },"uk" : {
     "library": "Бібліотека",
     "libPlaylists": "Бібліотека списків відтворення",

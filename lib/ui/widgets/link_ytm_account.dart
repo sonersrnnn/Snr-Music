@@ -27,7 +27,7 @@ class _AuthException implements Exception {
 
 /// account/account_menu browse isteği.
 /// Cookie ham değeri sadece istek başlığına gider, hiçbir yere loglanmaz.
-Future<String> _fetchAccountName(String cookie) async {
+Future<String> fetchYtmAccountName(String cookie) async {
   final authSvc = Get.find<YtmAuthService>();
   final musicSvc = Get.find<MusicServices>();
   final authHeader = authSvc.buildAuthHeader(cookie);
@@ -131,7 +131,7 @@ class _LinkYtmAccountState extends State<LinkYtmAccount> {
 
     try {
       // 2. Hesap adını doğrula
-      final name = await _fetchAccountName(cookie);
+      final name = await fetchYtmAccountName(cookie);
 
       // 3. Dialogo ÖNCE kapat, SONRA kaydet — build scope hatalarından kaçın
       if (!mounted) return;

@@ -83,6 +83,7 @@ dependencies:
   url_launcher: ^6.2.1
   widget_marquee: ^0.0.8
   window_manager: ^0.4.2
+  flutter_inappwebview: ^6.1.5
   youtube_explode_dart:
     path: packages/youtube_explode_dart
 dev_dependencies:

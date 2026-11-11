@@ -315,5 +315,9 @@
     "ytmLikeFailed": "Could not update YouTube like",
     "ytmRequestFailed": "YouTube request failed",
     "ytmLibraryLoading": "Loading YouTube Music library...",
-    "ytmSessionExpired": "YouTube session expired. Please reconnect in Settings."
+    "ytmSessionExpired": "YouTube session expired. Please reconnect in Settings.",
+    "ytmLoginTitle": "Sign in to YouTube Music",
+    "ytmLoginCancelled": "Login cancelled",
+    "ytmManualPasteFallback": "Paste cookie manually instead",
+    "ytmCookieNotFound": "No valid YouTube session cookie found. Please complete login or try pasting manually."
 }

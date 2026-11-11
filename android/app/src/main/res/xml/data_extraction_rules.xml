@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="database" path="ytmAuth.hive" />
+        <exclude domain="database" path="ytmAuth.lock" />
+        <exclude domain="file" path="ytmAuth.hive" />
+        <exclude domain="file" path="ytmAuth.lock" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" path="ytmAuth.hive" />
+        <exclude domain="database" path="ytmAuth.lock" />
+        <exclude domain="file" path="ytmAuth.hive" />
+        <exclude domain="file" path="ytmAuth.lock" />
+    </device-transfer>
+</data-extraction-rules>

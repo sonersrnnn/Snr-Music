@@ -14,6 +14,7 @@ import '../Library/library_controller.dart';
 import '../../widgets/snackbar.dart';
 import '/ui/widgets/link_piped.dart';
 import '/ui/widgets/link_ytm_account.dart';
+import 'ytm_login_screen.dart';
 import '/services/music_service.dart';
 import '/ui/player/player_controller.dart';
 import '/ui/utils/theme_controller.dart';
@@ -337,8 +338,8 @@ class SettingsScreen extends StatelessWidget {
                                     size: SanckBarSize.BIG)));
                       },
                     ),
-                    // YouTube hesap bağlama — yalnızca masaüstü, web dışı
-                    if (isDesktop)
+                    // YouTube hesap bağlama — masaüstü ve Android, web dışı
+                    if (isDesktop || Theme.of(context).platform == TargetPlatform.android)
                       Obx(() {
                         final linked =
                             settingsController.isLinkedWithYtm.isTrue;
@@ -370,11 +371,21 @@ class SettingsScreen extends StatelessWidget {
                                     if (linked) {
                                       settingsController.unlinkYtm();
                                     } else {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) =>
-                                            const LinkYtmAccount(),
-                                      );
+                                      if (Theme.of(context).platform ==
+                                          TargetPlatform.android) {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute<bool>(
+                                            builder: (_) =>
+                                                const YtmLoginScreen(),
+                                          ),
+                                        );
+                                      } else {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) =>
+                                              const LinkYtmAccount(),
+                                        );
+                                      }
                                     }
                                   },
                                   child: Text(
