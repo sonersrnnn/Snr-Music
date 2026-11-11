@@ -22,6 +22,8 @@ import '../screens/Home/home_screen_controller.dart';
 import '../widgets/sliding_up_panel.dart';
 import '/models/durationstate.dart';
 import '/services/music_service.dart';
+import '/services/ytm_auth_service.dart';
+import '/services/ytm_library_service.dart';
 
 class PlayerController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -61,6 +63,9 @@ class PlayerController extends GetxController
   final isShuffleModeEnabled = false.obs;
   final currentSong = Rxn<MediaItem>();
   final isCurrentSongFav = false.obs;
+  /// YTM Beğeni Durumu: 'LIKE', 'DISLIKE', 'INDIFFERENT' veya null (bilinmiyor)
+  final ytmLikeStatus = Rxn<String>();
+  final isYtmLikeActionInProgress = false.obs;
   final playinfrom = PlaylingFrom(type: PlaylingFromType.SELECTION).obs;
   final showLyricsflag = false.obs;
   final isLyricsLoading = false.obs;
@@ -277,6 +282,7 @@ class PlayerController extends GetxController
         currentSongIndex.value = currentQueue
             .indexWhere((element) => element.id == currentSong.value!.id);
         await _checkFav();
+        _checkYtmLikeStatus(currentSong.value!);
         await _addToRP(currentSong.value!);
         // Save most recently played song ID for "Based on Last Interaction" home content
         Hive.box('AppPrefs').put('recentSongId', currentSong.value!.id);
@@ -869,6 +875,80 @@ class PlayerController extends GetxController
   Future<void> _checkFav() async {
     isCurrentSongFav.value =
         (await Hive.openBox("LIBFAV")).containsKey(currentSong.value!.id);
+  }
+
+  void _checkYtmLikeStatus(MediaItem item) {
+    if (GetPlatform.isWeb ||
+        !Get.isRegistered<YtmAuthService>() ||
+        !Get.find<YtmAuthService>().isLinked.value) {
+      ytmLikeStatus.value = null;
+      return;
+    }
+
+    // 1. Şarkı üstverisinde likeStatus var mı (next cevabından veya playlistten gelmişse)?
+    final rawStatus = item.extras?['likeStatus']?.toString();
+    if (rawStatus != null && rawStatus.isNotEmpty) {
+      ytmLikeStatus.value = rawStatus;
+      return;
+    }
+
+    // 2. İlk sayfa önbelleğinde var mı kontrol et
+    if (Get.isRegistered<YtmLibraryService>()) {
+      final libSvc = Get.find<YtmLibraryService>();
+      if (libSvc.isSongInCachedLiked(item.id)) {
+        ytmLikeStatus.value = 'LIKE';
+        return;
+      }
+    }
+
+    // 3. Bulunamadıysa bilinmiyor (nötr ikon) olarak işaretle — unliked değil
+    ytmLikeStatus.value = null;
+  }
+
+  Future<void> toggleYtmLike() async {
+    if (currentSong.value == null || isYtmLikeActionInProgress.value) return;
+    if (GetPlatform.isWeb ||
+        !Get.isRegistered<YtmAuthService>() ||
+        !Get.find<YtmAuthService>().isLinked.value ||
+        !Get.isRegistered<YtmLibraryService>()) {
+      return;
+    }
+
+    final songId = currentSong.value!.id;
+    if (songId.startsWith('local_')) return;
+
+    final libSvc = Get.find<YtmLibraryService>();
+    final isCurrentlyLiked = ytmLikeStatus.value == 'LIKE';
+    isYtmLikeActionInProgress.value = true;
+
+    try {
+      final success = isCurrentlyLiked
+          ? await libSvc.unlikeSong(songId)
+          : await libSvc.likeSong(songId);
+
+      if (success) {
+        ytmLikeStatus.value = isCurrentlyLiked ? 'INDIFFERENT' : 'LIKE';
+        final ctx = Get.context;
+        if (ctx != null && ctx.mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            snackbar(
+              ctx,
+              isCurrentlyLiked ? 'ytmUnlikeSuccess'.tr : 'ytmLikeSuccess'.tr,
+              size: SanckBarSize.MEDIUM,
+            ),
+          );
+        }
+      } else {
+        final ctx = Get.context;
+        if (ctx != null && ctx.mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            snackbar(ctx, 'ytmLikeFailed'.tr, size: SanckBarSize.MEDIUM),
+          );
+        }
+      }
+    } finally {
+      isYtmLikeActionInProgress.value = false;
+    }
   }
 
   Future<void> toggleFavourite() async {

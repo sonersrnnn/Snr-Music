@@ -5,6 +5,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:widget_marquee/widget_marquee.dart';
 
 import '/ui/player/components/animated_play_button.dart';
+import '../../../../services/ytm_auth_service.dart';
 import '../player_controller.dart';
 
 class PlayerControlWidget extends StatelessWidget {
@@ -92,6 +93,48 @@ class PlayerControlWidget extends StatelessWidget {
                           color: Theme.of(context).textTheme.titleMedium!.color,
                         ))),
               ),
+              if (!GetPlatform.isWeb &&
+                  Get.isRegistered<YtmAuthService>() &&
+                  Get.find<YtmAuthService>().isLinked.value)
+                SizedBox(
+                  width: 45,
+                  child: Obx(() {
+                    final status = playerController.ytmLikeStatus.value;
+                    final isLiked = status == 'LIKE';
+                    final isIndifferent = status == 'INDIFFERENT';
+                    // status == null ise nötr (bilinmiyor)
+                    final IconData iconData = isLiked
+                        ? Icons.thumb_up
+                        : (isIndifferent
+                            ? Icons.thumb_up_alt_outlined
+                            : Icons.thumb_up_alt_outlined);
+
+                    final Color? iconColor = isLiked
+                        ? Theme.of(context).colorScheme.primary
+                        : (isIndifferent
+                            ? Theme.of(context).textTheme.titleMedium!.color
+                            : Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .color!
+                                .withValues(alpha: 0.5));
+
+                    final tooltip = isLiked
+                        ? 'ytmUnlikeBtn'.tr
+                        : 'ytmLikeBtn'.tr;
+
+                    return IconButton(
+                      tooltip: tooltip,
+                      onPressed: playerController.isYtmLikeActionInProgress.value
+                          ? null
+                          : playerController.toggleYtmLike,
+                      icon: Icon(
+                        iconData,
+                        color: iconColor,
+                      ),
+                    );
+                  }),
+                ),
             ],
           ),
           const SizedBox(

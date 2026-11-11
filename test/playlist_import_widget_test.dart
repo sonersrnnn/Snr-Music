@@ -19,7 +19,7 @@ class _LibraryController extends LibraryPlaylistsController {
   void onInit() {}
 
   @override
-  Future<void> refreshLib() async => refreshes++;
+  Future<void> refreshLib({bool forceYtmRefresh = false}) async => refreshes++;
 }
 
 void main() {
