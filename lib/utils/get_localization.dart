@@ -2068,7 +2068,18 @@ Map<String, Map<String, String>> get keys => {
     "ytmConnectSuccess": "Connected to YouTube Music",
     "ytmDisconnected": "YouTube account disconnected",
     "ytmHowToTitle": "How to get your Cookie",
-    "ytmHowTo": "1. Open music.youtube.com in your browser\n2. Open DevTools → Network tab\n3. Send any request and click on it\n4. Copy the full value of the Cookie request header\n5. Paste it here"
+    "ytmHowTo": "1. Open music.youtube.com in your browser\n2. Open DevTools → Network tab\n3. Send any request and click on it\n4. Copy the full value of the Cookie request header\n5. Paste it here",
+    "ytmLikedSongs": "Liked Songs",
+    "ytmLikedPlaylists": "YouTube Music Playlists",
+    "ytmYouTubeSection": "YouTube Music",
+    "ytmLikeBtn": "Like on YouTube",
+    "ytmUnlikeBtn": "Remove YouTube like",
+    "ytmLikeSuccess": "Liked on YouTube Music",
+    "ytmUnlikeSuccess": "Removed from YouTube likes",
+    "ytmLikeFailed": "Could not update YouTube like",
+    "ytmRequestFailed": "YouTube request failed",
+    "ytmLibraryLoading": "Loading YouTube Music library...",
+    "ytmSessionExpired": "YouTube session expired. Please reconnect in Settings."
 },"eo" : {
     "renamePlaylist": "Alinomi Ludliston",
     "trending": "Populara",
@@ -9022,7 +9033,18 @@ Map<String, Map<String, String>> get keys => {
     "ytmConnectSuccess": "YouTube Music'e bağlandı",
     "ytmDisconnected": "YouTube hesabı bağlantısı kesildi",
     "ytmHowToTitle": "Çerez Nasıl Alınır?",
-    "ytmHowTo": "1. Tarayıcınızda music.youtube.com'u açın\n2. DevTools → Network sekmesini açın\n3. Herhangi bir isteğe tıklayın\n4. Cookie istek başlığının tam değerini kopyalayın\n5. Buraya yapıştırın"
+    "ytmHowTo": "1. Tarayıcınızda music.youtube.com'u açın\n2. DevTools → Network sekmesini açın\n3. Herhangi bir isteğe tıklayın\n4. Cookie istek başlığının tam değerini kopyalayın\n5. Buraya yapıştırın",
+    "ytmLikedSongs": "Beğenilen Şarkılar",
+    "ytmLikedPlaylists": "YouTube Music Çalma Listeleri",
+    "ytmYouTubeSection": "YouTube Music",
+    "ytmLikeBtn": "YouTube'da Beğen",
+    "ytmUnlikeBtn": "YouTube Beğenisini Kaldır",
+    "ytmLikeSuccess": "YouTube Music'te beğenildi",
+    "ytmUnlikeSuccess": "YouTube beğenilerinden kaldırıldı",
+    "ytmLikeFailed": "YouTube beğenisi güncellenemedi",
+    "ytmRequestFailed": "YouTube isteği başarısız",
+    "ytmLibraryLoading": "YouTube Music kütüphanesi yükleniyor...",
+    "ytmSessionExpired": "YouTube oturumu sona erdi. Lütfen Ayarlar'dan yeniden bağlanın."
 },"uk" : {
     "library": "Бібліотека",
     "libPlaylists": "Бібліотека списків відтворення",

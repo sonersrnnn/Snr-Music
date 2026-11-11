@@ -289,5 +289,16 @@
     "ytmConnectSuccess": "YouTube Music'e bağlandı",
     "ytmDisconnected": "YouTube hesabı bağlantısı kesildi",
     "ytmHowToTitle": "Çerez Nasıl Alınır?",
-    "ytmHowTo": "1. Tarayıcınızda music.youtube.com'u açın\n2. DevTools → Network sekmesini açın\n3. Herhangi bir isteğe tıklayın\n4. Cookie istek başlığının tam değerini kopyalayın\n5. Buraya yapıştırın"
+    "ytmHowTo": "1. Tarayıcınızda music.youtube.com'u açın\n2. DevTools → Network sekmesini açın\n3. Herhangi bir isteğe tıklayın\n4. Cookie istek başlığının tam değerini kopyalayın\n5. Buraya yapıştırın",
+    "ytmLikedSongs": "Beğenilen Şarkılar",
+    "ytmLikedPlaylists": "YouTube Music Çalma Listeleri",
+    "ytmYouTubeSection": "YouTube Music",
+    "ytmLikeBtn": "YouTube'da Beğen",
+    "ytmUnlikeBtn": "YouTube Beğenisini Kaldır",
+    "ytmLikeSuccess": "YouTube Music'te beğenildi",
+    "ytmUnlikeSuccess": "YouTube beğenilerinden kaldırıldı",
+    "ytmLikeFailed": "YouTube beğenisi güncellenemedi",
+    "ytmRequestFailed": "YouTube isteği başarısız",
+    "ytmLibraryLoading": "YouTube Music kütüphanesi yükleniyor...",
+    "ytmSessionExpired": "YouTube oturumu sona erdi. Lütfen Ayarlar'dan yeniden bağlanın."
 }

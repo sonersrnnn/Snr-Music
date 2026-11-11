@@ -28,10 +28,12 @@ class Playlist {
       required this.thumbnailUrl,
       this.songCount,
       this.isPipedPlaylist = false,
+      this.isYtmPlaylist = false,
       this.isCloudPlaylist = true});
   final String playlistId;
   String title;
   final bool isPipedPlaylist;
+  final bool isYtmPlaylist;
   final String? description;
   String thumbnailUrl;
   final String? songCount;
@@ -48,6 +50,7 @@ class Playlist {
       description: json["description"] ?? "Playlist",
       songCount: json['itemCount'],
       isPipedPlaylist: json["isPipedPlaylist"] ?? false,
+      isYtmPlaylist: json["isYtmPlaylist"] ?? false,
       isCloudPlaylist: json["isCloudPlaylist"] ?? true);
 
   Map<String, dynamic> toJson() => {
@@ -59,10 +62,12 @@ class Playlist {
         ],
         "itemCount": songCount,
         "isPipedPlaylist": isPipedPlaylist,
+        "isYtmPlaylist": isYtmPlaylist,
         "isCloudPlaylist": isCloudPlaylist
       };
 
-  Playlist copyWith({String? title, String? thumbnailUrl}) {
+  Playlist copyWith(
+      {String? title, String? thumbnailUrl, bool? isYtmPlaylist}) {
     return Playlist(
         title: title ?? this.title,
         playlistId: playlistId,
@@ -70,6 +75,7 @@ class Playlist {
         description: description,
         songCount: songCount,
         isPipedPlaylist: isPipedPlaylist,
+        isYtmPlaylist: isYtmPlaylist ?? this.isYtmPlaylist,
         isCloudPlaylist: isCloudPlaylist);
   }
 
