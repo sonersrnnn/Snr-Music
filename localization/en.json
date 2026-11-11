@@ -319,5 +319,6 @@
     "ytmLoginTitle": "Sign in to YouTube Music",
     "ytmLoginCancelled": "Login cancelled",
     "ytmManualPasteFallback": "Paste cookie manually instead",
-    "ytmCookieNotFound": "No valid YouTube session cookie found. Please complete login or try pasting manually."
+    "ytmCookieNotFound": "No valid YouTube session cookie found. Please complete login or try pasting manually.",
+    "ytmRefreshTooltip": "Refresh YouTube Music playlists"
 }

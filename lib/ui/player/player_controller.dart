@@ -24,6 +24,7 @@ import '/models/durationstate.dart';
 import '/services/music_service.dart';
 import '/services/ytm_auth_service.dart';
 import '/services/ytm_library_service.dart';
+import '../screens/Playlist/playlist_screen_controller.dart';
 
 class PlayerController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -928,6 +929,13 @@ class PlayerController extends GetxController
 
       if (success) {
         ytmLikeStatus.value = isCurrentlyLiked ? 'INDIFFERENT' : 'LIKE';
+
+        // (a) YtmLibraryService önbelleğinde çalma listelerini geçersiz kıl
+        libSvc.invalidatePlaylistsCache();
+
+        // (b) LM / Beğenilen Şarkılar ekranı açıksa güncelle
+        _updateLikedSongsScreen(songId, isLikedNow: !isCurrentlyLiked);
+
         final ctx = Get.context;
         if (ctx != null && ctx.mounted) {
           ScaffoldMessenger.of(ctx).showSnackBar(
@@ -948,6 +956,31 @@ class PlayerController extends GetxController
       }
     } finally {
       isYtmLikeActionInProgress.value = false;
+    }
+  }
+
+  void _updateLikedSongsScreen(String songId, {required bool isLikedNow}) {
+    final possibleTags = [
+      const Key('LM').hashCode.toString(),
+      const Key('VLLM').hashCode.toString(),
+      null, // tagsiz kayıt kontrolü
+    ];
+
+    for (final tag in possibleTags) {
+      if (Get.isRegistered<PlaylistScreenController>(tag: tag)) {
+        try {
+          final ctrl = Get.find<PlaylistScreenController>(tag: tag);
+          if (ctrl.isDisposed) continue;
+          final id = ctrl.playlist.value.playlistId;
+          if (id == 'LM' || id == 'VLLM') {
+            if (isLikedNow) {
+              ctrl.syncPlaylistSongs();
+            } else {
+              ctrl.removeSongById(songId);
+            }
+          }
+        } catch (_) {}
+      }
     }
   }
 

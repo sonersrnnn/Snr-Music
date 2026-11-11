@@ -11,6 +11,7 @@ import 'library_controller.dart';
 import '../../widgets/content_list_widget_item.dart';
 import '../../widgets/list_widget.dart';
 import '../../widgets/sort_widget.dart';
+import '../../widgets/snackbar.dart';
 import '../Settings/settings_screen_controller.dart';
 
 class SongsLibraryWidget extends StatefulWidget {
@@ -217,13 +218,53 @@ class PlaylistNAlbumLibraryWidget extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
-                (settingscrnController.isBottomNavBarEnabled.isTrue ||
-                        isAlbumContent ||
-                        settingscrnController.isLinkedWithPiped.isFalse)
-                    ? const SizedBox.shrink()
-                    : PipedSyncWidget(
-                        padding: EdgeInsets.only(right: size.width * .05),
-                      )
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!settingscrnController.isBottomNavBarEnabled.isTrue &&
+                        !isAlbumContent &&
+                        settingscrnController.isLinkedWithYtm.isTrue)
+                      Padding(
+                        padding: EdgeInsets.only(right: size.width * .02),
+                        child: Obx(
+                          () => librplstCntrller.isYtmRefreshing.isTrue
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : IconButton(
+                                  splashRadius: 20,
+                                  iconSize: 20,
+                                  visualDensity: const VisualDensity(vertical: -4),
+                                  icon: const Icon(Icons.sync),
+                                  tooltip: 'ytmRefreshTooltip'.tr,
+                                  onPressed: () async {
+                                    try {
+                                      await librplstCntrller.refreshLib(
+                                          forceYtmRefresh: true);
+                                    } catch (_) {
+                                      final ctx = Get.context;
+                                      if (ctx != null && ctx.mounted) {
+                                        ScaffoldMessenger.of(ctx).showSnackBar(
+                                          snackbar(ctx, 'errorOccuredAlert'.tr,
+                                              size: SanckBarSize.BIG),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
+                        ),
+                      ),
+                    (settingscrnController.isBottomNavBarEnabled.isTrue ||
+                            isAlbumContent ||
+                            settingscrnController.isLinkedWithPiped.isFalse)
+                        ? const SizedBox.shrink()
+                        : PipedSyncWidget(
+                            padding: EdgeInsets.only(right: size.width * .05),
+                          ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -264,50 +305,103 @@ class PlaylistNAlbumLibraryWidget extends StatelessWidget {
           ),
           Expanded(
             child: Obx(
-              () => (isAlbumContent
-                      ? libralbumCntrller.libraryAlbums.isNotEmpty
-                      : librplstCntrller.libraryPlaylists.isNotEmpty)
-                  ? LayoutBuilder(builder: (context, constraints) {
-                      //Fix for grid in mobile screen
-                      final availableWidth = constraints.maxWidth > 300 &&
-                              constraints.maxWidth < 394
-                          ? 310.0
-                          : constraints.maxWidth;
-                      int columns = (availableWidth / itemWidth).floor();
-                      return SizedBox(
-                        width: availableWidth,
-                        child: GridView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: columns,
-                              childAspectRatio: (itemWidth / itemHeight),
-                            ),
-                            controller:
-                                ScrollController(keepScrollOffset: false),
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            padding:
-                                const EdgeInsets.only(bottom: 200, top: 10),
-                            itemCount: isAlbumContent
-                                ? libralbumCntrller.libraryAlbums.length
-                                : librplstCntrller.libraryPlaylists.length,
-                            itemBuilder: (context, index) => Center(
-                                  child: ContentListItem(
-                                    content: isAlbumContent
-                                        ? libralbumCntrller.libraryAlbums[index]
-                                        : librplstCntrller
-                                            .libraryPlaylists[index],
-                                    isLibraryItem: true,
-                                  ),
-                                )),
-                      );
-                    })
-                  : Center(
+              () {
+                final hasContent = isAlbumContent
+                    ? libralbumCntrller.libraryAlbums.isNotEmpty
+                    : librplstCntrller.libraryPlaylists.isNotEmpty;
+
+                return LayoutBuilder(builder: (context, constraints) {
+                  if (!hasContent) {
+                    final emptyWidget = Center(
                       child: Text(
-                      "noBookmarks".tr,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    )),
+                        "noBookmarks".tr,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    );
+                    if (isAlbumContent) return emptyWidget;
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        try {
+                          await librplstCntrller.refreshLib(forceYtmRefresh: true);
+                        } catch (_) {
+                          final ctx = Get.context;
+                          if (ctx != null && ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              snackbar(ctx, 'errorOccuredAlert'.tr,
+                                  size: SanckBarSize.BIG),
+                            );
+                          }
+                        }
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: constraints.maxHeight > 0
+                              ? constraints.maxHeight
+                              : 300,
+                          child: emptyWidget,
+                        ),
+                      ),
+                    );
+                  }
+
+                  //Fix for grid in mobile screen
+                  final availableWidth = constraints.maxWidth > 300 &&
+                          constraints.maxWidth < 394
+                      ? 310.0
+                      : constraints.maxWidth;
+                  int columns = (availableWidth / itemWidth).floor();
+                  final gridView = SizedBox(
+                    width: availableWidth,
+                    child: GridView.builder(
+                        physics: isAlbumContent
+                            ? const BouncingScrollPhysics()
+                            : const AlwaysScrollableScrollPhysics(),
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          childAspectRatio: (itemWidth / itemHeight),
+                        ),
+                        controller:
+                            ScrollController(keepScrollOffset: false),
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        padding:
+                            const EdgeInsets.only(bottom: 200, top: 10),
+                        itemCount: isAlbumContent
+                            ? libralbumCntrller.libraryAlbums.length
+                            : librplstCntrller.libraryPlaylists.length,
+                        itemBuilder: (context, index) => Center(
+                              child: ContentListItem(
+                                content: isAlbumContent
+                                    ? libralbumCntrller.libraryAlbums[index]
+                                    : librplstCntrller
+                                        .libraryPlaylists[index],
+                                isLibraryItem: true,
+                              ),
+                            )),
+                  );
+
+                  if (isAlbumContent) return gridView;
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      try {
+                        await librplstCntrller.refreshLib(forceYtmRefresh: true);
+                      } catch (_) {
+                        final ctx = Get.context;
+                        if (ctx != null && ctx.mounted) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            snackbar(ctx, 'errorOccuredAlert'.tr,
+                                size: SanckBarSize.BIG),
+                          );
+                        }
+                      }
+                    },
+                    child: gridView,
+                  );
+                });
+              },
             ),
           )
         ],

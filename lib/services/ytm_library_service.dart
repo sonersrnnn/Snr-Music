@@ -28,9 +28,9 @@ class YtmLibraryService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    // Oturum kapandığında önbelleği temizle
-    ever(_authSvc.isLinked, (linked) {
-      if (!linked) clearCache();
+    // Oturum durumu her değiştiğinde (bağlama ve koparma) önbelleği temizle
+    ever(_authSvc.isLinked, (_) {
+      clearCache();
     });
   }
 
@@ -39,6 +39,11 @@ class YtmLibraryService extends GetxService {
     _playlistsLastFetch = null;
     _cachedLikedSongIds.clear();
     _likedSongsLastFetch = null;
+  }
+
+  /// Çalma listeleri önbelleğini geçersiz kılar, sonraki fetchLikedPlaylists taze çeker.
+  void invalidatePlaylistsCache() {
+    _playlistsLastFetch = null;
   }
 
   Playlist get likedSongsPlaceholder => Playlist(

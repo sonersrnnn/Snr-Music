@@ -270,6 +270,7 @@ class LibraryPlaylistsController extends GetxController
   // Add these RxBool to track import progress
   final isImporting = false.obs;
   final importProgress = 0.0.obs;
+  final isYtmRefreshing = false.obs;
 
   @override
   void onInit() {
@@ -288,40 +289,46 @@ class LibraryPlaylistsController extends GetxController
   }
 
   Future<void> refreshLib({bool forceYtmRefresh = false}) async {
-    final box = await Hive.openBox("LibraryPlaylists");
-    final List<Playlist> localAndHivePlaylists = [
-      ...initPlst,
-      ...(box.values
-          .map<Playlist?>((item) => Playlist.fromJson(item))
-          .whereType<Playlist>()
-          .toList()),
-    ];
+    if (forceYtmRefresh && isYtmRefreshing.value) return;
+    if (forceYtmRefresh) isYtmRefreshing.value = true;
+    try {
+      final box = await Hive.openBox("LibraryPlaylists");
+      final List<Playlist> localAndHivePlaylists = [
+        ...initPlst,
+        ...(box.values
+            .map<Playlist?>((item) => Playlist.fromJson(item))
+            .whereType<Playlist>()
+            .toList()),
+      ];
 
-    List<Playlist> ytmPlaylists = [];
-    if (!GetPlatform.isWeb &&
-        Get.isRegistered<YtmAuthService>() &&
-        Get.find<YtmAuthService>().isLinked.value &&
-        Get.isRegistered<YtmLibraryService>()) {
-      try {
-        ytmPlaylists = await Get.find<YtmLibraryService>()
-            .fetchLikedPlaylists(forceRefresh: forceYtmRefresh);
-      } catch (_) {}
+      List<Playlist> ytmPlaylists = [];
+      if (!GetPlatform.isWeb &&
+          Get.isRegistered<YtmAuthService>() &&
+          Get.find<YtmAuthService>().isLinked.value &&
+          Get.isRegistered<YtmLibraryService>()) {
+        try {
+          ytmPlaylists = await Get.find<YtmLibraryService>()
+              .fetchLikedPlaylists(forceRefresh: forceYtmRefresh);
+        } catch (_) {}
+      }
+
+      _allPlaylists = [
+        ...localAndHivePlaylists,
+        ...ytmPlaylists,
+      ];
+
+      final appPrefsBox = Hive.box("AppPrefs");
+      if (appPrefsBox.containsKey("piped")) {
+        if (appPrefsBox.get("piped")['isLoggedIn']) await syncPipedPlaylist();
+      }
+
+      _applyPlaylistSort();
+
+      isContentFetched.value = true;
+      await box.close();
+    } finally {
+      if (forceYtmRefresh) isYtmRefreshing.value = false;
     }
-
-    _allPlaylists = [
-      ...localAndHivePlaylists,
-      ...ytmPlaylists,
-    ];
-
-    final appPrefsBox = Hive.box("AppPrefs");
-    if (appPrefsBox.containsKey("piped")) {
-      if (appPrefsBox.get("piped")['isLoggedIn']) await syncPipedPlaylist();
-    }
-
-    _applyPlaylistSort();
-
-    isContentFetched.value = true;
-    await box.close();
   }
 
   Future<void> updatePlaylistIntoDb(Playlist playlist) async {

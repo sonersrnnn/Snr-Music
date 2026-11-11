@@ -69,6 +69,16 @@ class PlaylistScreenController extends PlaylistAlbumScreenControllerBase
     _applySort();
   }
 
+  bool get isDisposed => _disposed;
+
+  /// Şarkıyı yerel bellek listesinden kaldırır (örn. Beğenilen Şarkılar'dan like kaldırıldığında).
+  void removeSongById(String songId) {
+    if (_disposed) return;
+    _records.removeWhere((entry) => entry.song.id == songId);
+    _orderedRecords.removeWhere((entry) => entry.song.id == songId);
+    _applySort();
+  }
+
   void _setSongs(List<PlaylistSongRecord> songs) {
     if (_disposed) return;
     _records = songs;

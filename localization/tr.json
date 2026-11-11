@@ -304,5 +304,6 @@
     "ytmLoginTitle": "YouTube Music Girişi",
     "ytmLoginCancelled": "Giriş iptal edildi",
     "ytmManualPasteFallback": "Bunun yerine çerezi elle yapıştır",
-    "ytmCookieNotFound": "Geçerli bir YouTube oturum çerezi bulunamadı. Lütfen girişi tamamlayın veya elle yapıştırmayı deneyin."
+    "ytmCookieNotFound": "Geçerli bir YouTube oturum çerezi bulunamadı. Lütfen girişi tamamlayın veya elle yapıştırmayı deneyin.",
+    "ytmRefreshTooltip": "YouTube Music çalma listelerini yenile"
 }

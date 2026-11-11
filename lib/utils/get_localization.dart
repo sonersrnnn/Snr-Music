@@ -2083,7 +2083,8 @@ Map<String, Map<String, String>> get keys => {
     "ytmLoginTitle": "Sign in to YouTube Music",
     "ytmLoginCancelled": "Login cancelled",
     "ytmManualPasteFallback": "Paste cookie manually instead",
-    "ytmCookieNotFound": "No valid YouTube session cookie found. Please complete login or try pasting manually."
+    "ytmCookieNotFound": "No valid YouTube session cookie found. Please complete login or try pasting manually.",
+    "ytmRefreshTooltip": "Refresh YouTube Music playlists"
 },"eo" : {
     "renamePlaylist": "Alinomi Ludliston",
     "trending": "Populara",
@@ -9052,7 +9053,8 @@ Map<String, Map<String, String>> get keys => {
     "ytmLoginTitle": "YouTube Music Girişi",
     "ytmLoginCancelled": "Giriş iptal edildi",
     "ytmManualPasteFallback": "Bunun yerine çerezi elle yapıştır",
-    "ytmCookieNotFound": "Geçerli bir YouTube oturum çerezi bulunamadı. Lütfen girişi tamamlayın veya elle yapıştırmayı deneyin."
+    "ytmCookieNotFound": "Geçerli bir YouTube oturum çerezi bulunamadı. Lütfen girişi tamamlayın veya elle yapıştırmayı deneyin.",
+    "ytmRefreshTooltip": "YouTube Music çalma listelerini yenile"
 },"uk" : {
     "library": "Бібліотека",
     "libPlaylists": "Бібліотека списків відтворення",
