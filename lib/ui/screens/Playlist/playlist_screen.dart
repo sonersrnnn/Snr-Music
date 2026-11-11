@@ -561,58 +561,66 @@ class PlaylistScreen extends StatelessWidget {
                                   animation:
                                       playlistController.animationController,
                                   builder: (context, child) {
-                                    return SizedBox(
-                                      height: playlistController
-                                          .heightAnimation.value,
-                                      child: Transform.scale(
-                                        scale: playlistController
-                                            .scaleAnimation.value,
-                                        child: child,
+                                    return ClipRect(
+                                      child: SizedBox(
+                                        height: playlistController
+                                            .heightAnimation.value,
+                                        child: Transform.scale(
+                                          scale: playlistController
+                                              .scaleAnimation.value,
+                                          child: child,
+                                        ),
                                       ),
                                     );
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 25.0, bottom: 10, right: 30),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Marquee(
-                                          delay:
-                                              const Duration(milliseconds: 300),
-                                          duration: const Duration(seconds: 5),
-                                          id: title.hashCode.toString(),
-                                          child: Text(
-                                            title.length > 50
-                                                ? title.substring(0, 50)
-                                                : title,
-                                            maxLines: 1,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleLarge!
-                                                .copyWith(fontSize: 30),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Marquee(
+                                    child: SingleChildScrollView(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Marquee(
                                             delay: const Duration(
                                                 milliseconds: 300),
                                             duration:
                                                 const Duration(seconds: 5),
-                                            id: description.hashCode.toString(),
+                                            id: title.hashCode.toString(),
                                             child: Text(
-                                              description ?? "playlist".tr,
+                                              title.length > 50
+                                                  ? title.substring(0, 50)
+                                                  : title,
                                               maxLines: 1,
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .titleSmall,
+                                                  .titleLarge!
+                                                  .copyWith(fontSize: 30),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: Marquee(
+                                              delay: const Duration(
+                                                  milliseconds: 300),
+                                              duration:
+                                                  const Duration(seconds: 5),
+                                              id: description.hashCode
+                                                  .toString(),
+                                              child: Text(
+                                                description ?? "playlist".tr,
+                                                maxLines: 1,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleSmall,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 );
