@@ -117,6 +117,7 @@ class PlayerController extends GetxController
     _listenForChangesInDuration();
     _listenForPlaylistChange();
     _listenForKeyboardActivity();
+    _listenForYtmLikedCacheChanges();
     _setInitLyricsMode();
     final appPrefs = Hive.box("AppPrefs");
     isLoopModeEnabled.value = appPrefs.get("isLoopModeEnabled") ?? false;
@@ -876,6 +877,17 @@ class PlayerController extends GetxController
   Future<void> _checkFav() async {
     isCurrentSongFav.value =
         (await Hive.openBox("LIBFAV")).containsKey(currentSong.value!.id);
+  }
+
+  void _listenForYtmLikedCacheChanges() {
+    if (GetPlatform.isWeb) return;
+    if (Get.isRegistered<YtmLibraryService>()) {
+      ever(Get.find<YtmLibraryService>().cachedLikedSongIds, (_) {
+        if (currentSong.value != null) {
+          _checkYtmLikeStatus(currentSong.value!);
+        }
+      });
+    }
   }
 
   void _checkYtmLikeStatus(MediaItem item) {

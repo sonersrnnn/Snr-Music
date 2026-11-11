@@ -306,10 +306,26 @@ class LibraryPlaylistsController extends GetxController
           Get.isRegistered<YtmAuthService>() &&
           Get.find<YtmAuthService>().isLinked.value &&
           Get.isRegistered<YtmLibraryService>()) {
-        try {
-          ytmPlaylists = await Get.find<YtmLibraryService>()
-              .fetchLikedPlaylists(forceRefresh: forceYtmRefresh);
-        } catch (_) {}
+        final ytmLibSvc = Get.find<YtmLibraryService>();
+        if (forceYtmRefresh) {
+          final results = await Future.wait([
+            ytmLibSvc
+                .fetchLikedPlaylists(forceRefresh: true)
+                .then<dynamic>((v) => v)
+                .catchError((_) => null),
+            ytmLibSvc
+                .fetchLikedSongIds(forceRefresh: true)
+                .then<dynamic>((v) => v)
+                .catchError((_) => null),
+          ]);
+          if (results[0] is List<Playlist>) {
+            ytmPlaylists = results[0] as List<Playlist>;
+          }
+        } else {
+          try {
+            ytmPlaylists = await ytmLibSvc.fetchLikedPlaylists(forceRefresh: false);
+          } catch (_) {}
+        }
       }
 
       _allPlaylists = [

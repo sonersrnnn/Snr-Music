@@ -18,12 +18,15 @@ class YtmLibraryService extends GetxService {
   List<Playlist> _cachedPlaylists = [];
   DateTime? _playlistsLastFetch;
 
-  Set<String> _cachedLikedSongIds = {};
+  final RxSet<String> _cachedLikedSongIds = <String>{}.obs;
   DateTime? _likedSongsLastFetch;
 
   static const Duration _cacheDuration = Duration(minutes: 5);
 
   final isPlaylistsLoading = false.obs;
+
+  /// Beğenilen şarkı ID'leri önbelleği dinlenebilir RxSet
+  RxSet<String> get cachedLikedSongIds => _cachedLikedSongIds;
 
   @override
   void onInit() {
@@ -197,11 +200,22 @@ class YtmLibraryService extends GetxService {
           ids.add(t.id);
         }
       }
-      _cachedLikedSongIds = ids;
+      _cachedLikedSongIds.assignAll(ids);
       _likedSongsLastFetch = DateTime.now();
       return _cachedLikedSongIds;
     } catch (_) {
       return _cachedLikedSongIds;
+    }
+  }
+
+  /// Harici olarak yüklenen LM/VLLM şarkı listesi ile önbelleği günceller.
+  /// [isComplete]: Listenin tamamı çekildiyse true olmalıdır (eksik sayfalama varsa false).
+  void updateLikedSongIds(Iterable<String> ids, {bool isComplete = false}) {
+    if (isComplete) {
+      _cachedLikedSongIds.assignAll(ids);
+      _likedSongsLastFetch = DateTime.now();
+    } else {
+      _cachedLikedSongIds.addAll(ids);
     }
   }
 

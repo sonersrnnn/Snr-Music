@@ -20,6 +20,7 @@ import '../../../models/playlist.dart';
 import '../../../services/music_service.dart';
 import '../../../services/piped_service.dart';
 import '../../../services/playlist_song_store.dart';
+import '../../../services/ytm_library_service.dart';
 import '../../widgets/sort_widget.dart';
 import '../Home/home_screen_controller.dart';
 import '../Library/library_controller.dart';
@@ -368,7 +369,20 @@ class PlaylistScreenController extends PlaylistAlbumScreenControllerBase
       playlist.value = Playlist.fromJson(content);
       _animationController.forward();
     }
-    _setOnlineSongs(List<MediaItem>.from(content['tracks']));
+    final tracks = List<MediaItem>.from(content['tracks']);
+    _setOnlineSongs(tracks);
+
+    // Beğenilen Şarkılar (LM/VLLM) açıldıysa önbelleği gelen şarkı ID'leriyle güncelle
+    if (!GetPlatform.isWeb &&
+        (id == 'LM' || id == 'VLLM') &&
+        Get.isRegistered<YtmLibraryService>()) {
+      final trackCount = (content['trackCount'] as int?) ?? tracks.length;
+      final isComplete = tracks.length >= trackCount;
+      final songIds = tracks.map((m) => m.id).where((s) => s.isNotEmpty);
+      Get.find<YtmLibraryService>()
+          .updateLikedSongIds(songIds, isComplete: isComplete);
+    }
+
     checkDownloadStatus();
   }
 
