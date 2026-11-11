@@ -117,7 +117,7 @@ class MusicServices extends getx.GetxService {
   /// Auth başlıklarını mevcut _headers üzerine ekler ve döndürür.
   /// Servis kayıtlı değilse veya cookie yoksa _headers'ı değiştirmeden
   /// döndürür (anonim mod). Auth hatası asla ana sayfa isteğini düşürmesin.
-  Map<String, String> _buildHeaders() {
+  Map<String, String> buildHeaders() {
     try {
       final authSvc = getx.Get.find<YtmAuthService>();
       final cookie = authSvc.storedCookie;
@@ -136,6 +136,8 @@ class MusicServices extends getx.GetxService {
       return _headers;
     }
   }
+
+  Map<String, String> _buildHeaders() => buildHeaders();
 
   Future<Response> _sendRequest(
     String action,

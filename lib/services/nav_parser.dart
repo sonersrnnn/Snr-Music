@@ -121,6 +121,26 @@ const menu_like_status = [
   'likeButtonRenderer',
   'likeStatus'
 ];
+
+String? extractLikeStatus(dynamic data) {
+  if (data is! Map) return null;
+  try {
+    final status = nav(data, menu_like_status);
+    if (status != null) return status.toString();
+
+    final topLevelButtons =
+        nav(data, ['menu', 'menuRenderer', 'topLevelButtons']) as List?;
+    if (topLevelButtons != null) {
+      for (final btn in topLevelButtons) {
+        final likeBtn = btn['likeButtonRenderer'];
+        if (likeBtn != null && likeBtn['likeStatus'] != null) {
+          return likeBtn['likeStatus'].toString();
+        }
+      }
+    }
+  } catch (_) {}
+  return null;
+}
 const List<dynamic> section_list_item = ['sectionListRenderer', 'contents', 0];
 const List<dynamic> thumnail_cropped = [
   'thumbnail',
@@ -459,6 +479,10 @@ Map<String, dynamic> parseWatchTrack(Map<String, dynamic> data) {
     'thumbnails': nav(data, thumbnail),
     'videoType': nav(data, ['navigationEndpoint'] + navigation_video_type),
   };
+  final likeStatus = extractLikeStatus(data);
+  if (likeStatus != null) {
+    track['likeStatus'] = likeStatus;
+  }
   track.addAll(songInfo);
   return track;
 }
@@ -589,6 +613,11 @@ List<dynamic> parsePlaylistItems(List<dynamic> results,
       'isAvailable': isAvailable,
       'trackDetails': trackDetails
     };
+
+    final likeStatus = extractLikeStatus(data);
+    if (likeStatus != null) {
+      song['likeStatus'] = likeStatus;
+    }
 
     if (duration != null) {
       song['length'] = duration;

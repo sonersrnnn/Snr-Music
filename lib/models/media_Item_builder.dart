@@ -45,6 +45,7 @@ class MediaItemBuilder {
           'trackDetails': json['trackDetails'],
           'year': json['year'],
           'resultType': json['resultType'],
+          'likeStatus': json['likeStatus'],
         });
   }
 
@@ -84,5 +85,6 @@ class MediaItemBuilder {
         'trackDetails': mediaItem.extras?['trackDetails'],
         'year': mediaItem.extras?['year'],
         'resultType': mediaItem.extras?['resultType'],
+        'likeStatus': mediaItem.extras?['likeStatus'],
       };
 }

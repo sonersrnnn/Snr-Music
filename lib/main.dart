@@ -26,6 +26,7 @@ import 'utils/update_check_flag_file.dart';
 import 'services/backup_restore_service.dart';
 import 'services/backup_restore_journal.dart';
 import 'services/ytm_auth_service.dart';
+import 'services/ytm_library_service.dart';
 import 'ui/widgets/backup_recovery_screen.dart';
 
 Future<void> main() async {
@@ -128,6 +129,7 @@ class MyApp extends StatelessWidget {
 Future<void> startApplicationServices() async {
   Get.lazyPut(() => InvidiousService(), fenix: true);
   Get.lazyPut(() => PipedServices(), fenix: true);
+  if (!GetPlatform.isWeb) Get.lazyPut(() => YtmLibraryService(), fenix: true);
   // YtmAuthService _startApplication() içinde Get.put ile erken kaydedildi.
   Get.lazyPut(() => MusicServices(), fenix: true);
   Get.lazyPut(() => ThemeController(), fenix: true);
