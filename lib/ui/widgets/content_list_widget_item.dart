@@ -78,6 +78,28 @@ class ContentListItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                            if (content.isYtmPlaylist)
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height: 18,
+                                    width: 18,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.red.shade700,
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.play_arrow,
+                                        size: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             if (!content.isCloudPlaylist)
                               Align(
                                 alignment: Alignment.bottomRight,

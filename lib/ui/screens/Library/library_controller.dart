@@ -10,6 +10,8 @@ import 'package:file_picker/file_picker.dart';
 
 import '../../../services/playlist_import_service.dart';
 import '../../../services/playlist_song_store.dart';
+import '../../../services/ytm_auth_service.dart';
+import '../../../services/ytm_library_service.dart';
 
 import '../../../utils/house_keeping.dart';
 import '../../widgets/add_to_playlist.dart';
@@ -276,18 +278,39 @@ class LibraryPlaylistsController extends GetxController
       vsync: this,
       duration: const Duration(seconds: 5),
     );
+    if (!GetPlatform.isWeb && Get.isRegistered<YtmAuthService>()) {
+      ever(Get.find<YtmAuthService>().isLinked, (_) {
+        refreshLib();
+      });
+    }
     refreshLib();
     super.onInit();
   }
 
-  Future<void> refreshLib() async {
+  Future<void> refreshLib({bool forceYtmRefresh = false}) async {
     final box = await Hive.openBox("LibraryPlaylists");
-    _allPlaylists = [
+    final List<Playlist> localAndHivePlaylists = [
       ...initPlst,
       ...(box.values
           .map<Playlist?>((item) => Playlist.fromJson(item))
           .whereType<Playlist>()
           .toList()),
+    ];
+
+    List<Playlist> ytmPlaylists = [];
+    if (!GetPlatform.isWeb &&
+        Get.isRegistered<YtmAuthService>() &&
+        Get.find<YtmAuthService>().isLinked.value &&
+        Get.isRegistered<YtmLibraryService>()) {
+      try {
+        ytmPlaylists = await Get.find<YtmLibraryService>()
+            .fetchLikedPlaylists(forceRefresh: forceYtmRefresh);
+      } catch (_) {}
+    }
+
+    _allPlaylists = [
+      ...localAndHivePlaylists,
+      ...ytmPlaylists,
     ];
 
     final appPrefsBox = Hive.box("AppPrefs");
@@ -302,6 +325,7 @@ class LibraryPlaylistsController extends GetxController
   }
 
   Future<void> updatePlaylistIntoDb(Playlist playlist) async {
+    if (playlist.isYtmPlaylist) return;
     final box = await Hive.openBox("LibraryPlaylists");
     await box.put(playlist.playlistId, playlist.toJson());
     await refreshLib();
@@ -370,6 +394,7 @@ class LibraryPlaylistsController extends GetxController
   }
 
   Future<bool> renamePlaylist(Playlist playlist) async {
+    if (playlist.isYtmPlaylist) return false;
     String title = textInputController.text;
     if (title.trim().isNotEmpty) {
       if (playlist.isPipedPlaylist) {

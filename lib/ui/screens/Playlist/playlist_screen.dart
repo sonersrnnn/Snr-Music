@@ -262,6 +262,8 @@ class PlaylistScreen extends StatelessWidget {
                                           // Bookmark button
                                           Obx(() => (playlistController.playlist
                                                       .value.isPipedPlaylist ||
+                                                  playlistController.playlist
+                                                      .value.isYtmPlaylist ||
                                                   !playlistController.playlist
                                                       .value.isCloudPlaylist)
                                               ? const SizedBox.shrink()
