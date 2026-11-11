@@ -48,7 +48,7 @@ class _BackupRecoveryScreenState extends State<BackupRecoveryScreen> {
     final strings = languages[locale.languageCode] ?? languages['en']!;
     String text(String key) => strings[key] ?? languages['en']![key]!;
     return MaterialApp(
-      title: 'Harmony Music',
+      title: 'Snr Music',
       home: Builder(
           builder: (context) => Scaffold(
                 body: Center(

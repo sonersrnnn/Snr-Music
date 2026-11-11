@@ -1,11 +1,11 @@
 {
-    "name": "Harmony Music",
-    "short_name": "Harmony",
+    "name": "Snr Music",
+    "short_name": "Snr Music",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Harmony Music - music streaming across your devices.",
+    "description": "Snr Music - music streaming across your devices.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -62,7 +62,7 @@ class HarmonyMediaKitPlayer extends AudioPlayerPlatform {
     _player = Player(
       configuration: PlayerConfiguration(
         protocolWhitelist: const ['http', 'https', 'file'],
-        title: 'Harmony Music',
+        title: 'Snr Music',
         bufferSize: 32 * 1024 * 1024,
         logLevel: MPVLogLevel.error,
         // Setting osc to true prevents media_kit from attempting to pass osc=no,

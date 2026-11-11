@@ -158,7 +158,7 @@ class AppInfoContent extends StatelessWidget {
             Center(
               child: Obx(
                 () => Text(
-                  "Harmony Music ${settingsController.formattedVersion} • $appGithubUser",
+                  "Snr Music ${settingsController.formattedVersion} • $appGithubUser",
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.4),
                     fontSize: 12,
@@ -652,7 +652,7 @@ class AppInfoContent extends StatelessWidget {
                       () => Text(
                         settingsController.isNewVersionAvailable.value
                             ? "New version ${settingsController.latestVersion.value} is available!"
-                            : "Harmony Music is up to date",
+                            : "Snr Music is up to date",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

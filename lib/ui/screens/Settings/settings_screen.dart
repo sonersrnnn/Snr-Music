@@ -789,7 +789,7 @@ class SettingsScreen extends StatelessWidget {
             child: Center(
               child: Obx(
                 () => Text(
-                  "Harmony Music ${settingsController.formattedVersion} • $appGithubUser",
+                  "Snr Music ${settingsController.formattedVersion} • $appGithubUser",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context)
                             .textTheme

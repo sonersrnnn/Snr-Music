@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
     return GetMaterialApp(
-      title: 'Harmony Music',
+      title: 'Snr Music',
       home: GetPlatform.isWeb &&
               (Hive.box("AppPrefs").get('webExperimentWarningEnabled') ?? true)
           ? const WebExperimentConsentScreen()
