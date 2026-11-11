@@ -792,7 +792,7 @@ class PlaylistScreenController extends PlaylistAlbumScreenControllerBase
   // Helper method to get the appropriate export directory for each platform
   Future<Directory> _getExportDirectory() async {
     Directory directory;
-    const appFolderName = "HarmonyMusic";
+    const appFolderName = "SnrMusic";
 
     try {
       if (Platform.isAndroid) {
@@ -822,23 +822,34 @@ class PlaylistScreenController extends PlaylistAlbumScreenControllerBase
       return directory;
     } catch (e) {
       // Fallback to app's documents directory if any error occurs
-      final appDocDir = await path_provider.getApplicationDocumentsDirectory();
-      directory = Directory('${appDocDir.path}/$appFolderName');
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
+      try {
+        final appDocDir =
+            await path_provider.getApplicationDocumentsDirectory();
+        directory = Directory('${appDocDir.path}/$appFolderName');
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+        return directory;
+      } catch (fallbackError) {
+        // Final fallback: use temporary directory
+        final tempDir = await path_provider.getTemporaryDirectory();
+        directory = Directory('${tempDir.path}/$appFolderName');
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+        return directory;
       }
-      return directory;
     }
   }
 
   // Helper method to get a user-friendly location message
   String _getLocationMessage(String path) {
     if (Platform.isAndroid) {
-      return "Downloads/HarmonyMusic";
+      return "Downloads/SnrMusic";
     } else if (Platform.isIOS) {
-      return "Files App > HarmonyMusic";
+      return "Files App > SnrMusic";
     } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      return "Downloads/HarmonyMusic";
+      return "Downloads/SnrMusic";
     } else {
       return path.split('/').last;
     }
