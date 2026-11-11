@@ -732,89 +732,170 @@ class MusicServices extends getx.GetxService {
     ))
         .data;
     if (playlistId != null) {
-      final Map<String, dynamic> header =
-          nav(response, ['header', "musicDetailHeaderRenderer"]) ??
+      final dynamic rawHeader =
+          nav(response, ['header', 'musicDetailHeaderRenderer']) ??
+              nav(response, [
+                'header',
+                'musicEditablePlaylistDetailHeaderRenderer',
+                'header',
+                'musicDetailHeaderRenderer'
+              ]) ??
               nav(response, [
                 'contents',
-                "twoColumnBrowseResultsRenderer",
+                'twoColumnBrowseResultsRenderer',
                 'tabs',
                 0,
-                "tabRenderer",
-                "content",
-                "sectionListRenderer",
-                "contents",
-                0,
-                "musicResponsiveHeaderRenderer",
-              ]);
-
-      final Map<String, dynamic> results =
-          nav(response, musicPlaylistShelfRenderer) ??
-              nav(response, [
-                'contents',
-                "singleColumnBrowseResultsRenderer",
-                "tabs",
-                0,
-                "tabRenderer",
-                "content",
+                'tabRenderer',
+                'content',
                 'sectionListRenderer',
                 'contents',
                 0,
-                "musicPlaylistShelfRenderer",
+                'musicResponsiveHeaderRenderer',
+              ]) ??
+              nav(response, [
+                'contents',
+                'twoColumnBrowseResultsRenderer',
+                'tabs',
+                0,
+                'tabRenderer',
+                'content',
+                'sectionListRenderer',
+                'contents',
+                0,
+                'musicEditablePlaylistDetailHeaderRenderer',
+                'header',
+                'musicDetailHeaderRenderer'
+              ]) ??
+              nav(response, [
+                'contents',
+                'twoColumnBrowseResultsRenderer',
+                'tabs',
+                0,
+                'tabRenderer',
+                'content',
+                'sectionListRenderer',
+                'contents',
+                0,
+                'musicEditablePlaylistDetailHeaderRenderer',
+                'header',
+                'musicResponsiveHeaderRenderer'
               ]);
-      final Map<String, dynamic> playlist = {'id': results['playlistId']};
+      final Map<String, dynamic> header =
+          rawHeader is Map ? Map<String, dynamic>.from(rawHeader) : {};
 
-      playlist['title'] = nav(header, title_text);
-      playlist['thumbnails'] = nav(header, thumnail_cropped) ??
-          nav(header, [
-            "thumbnail",
-            "musicThumbnailRenderer",
-            "thumbnail",
-            "thumbnails",
-          ]);
-      playlist["description"] = nav(header, description);
-      final int runCount = header['subtitle']['runs'].length;
-      if (runCount > 1) {
-        playlist['author'] = {
-          'name': nav(header, subtitle2),
-          'id': nav(header, ['subtitle', 'runs', 2] + navigation_browse_id),
-        };
-        if (runCount == 5) {
-          playlist['year'] = nav(header, subtitle3);
+      final dynamic rawResults =
+          nav(response, musicPlaylistShelfRenderer) ??
+              nav(response, [
+                'contents',
+                'singleColumnBrowseResultsRenderer',
+                'tabs',
+                0,
+                'tabRenderer',
+                'content',
+                'sectionListRenderer',
+                'contents',
+                0,
+                'musicPlaylistShelfRenderer',
+              ]) ??
+              nav(response, [
+                'contents',
+                'twoColumnBrowseResultsRenderer',
+                'secondaryContents',
+                'sectionListRenderer',
+                'contents',
+                0,
+                'musicPlaylistShelfRenderer',
+              ]);
+      final Map<String, dynamic> results =
+          rawResults is Map ? Map<String, dynamic>.from(rawResults) : {};
+      final Map<String, dynamic> playlist = {
+        'id': results['playlistId'] ?? playlistId,
+        'playlistId': playlistId,
+      };
+
+      if (header.isNotEmpty) {
+        playlist['title'] = nav(header, title_text) ?? '';
+        playlist['thumbnails'] = nav(header, thumnail_cropped) ??
+            nav(header, [
+              'thumbnail',
+              'musicThumbnailRenderer',
+              'thumbnail',
+              'thumbnails',
+            ]) ??
+            nav(header, [
+              'thumbnail',
+              'musicThumbnailRenderer',
+              'thumbnail',
+            ]);
+        playlist['description'] = nav(header, description) ??
+            nav(header, [
+              'description',
+              'musicDescriptionShelfRenderer',
+              'description',
+              'runs',
+              0,
+              'text',
+            ]);
+
+        final dynamic subtitleRunsRaw = nav(header, ['subtitle', 'runs']);
+        final List subtitleRuns =
+            subtitleRunsRaw is List ? subtitleRunsRaw : [];
+        if (subtitleRuns.length > 1) {
+          playlist['author'] = {
+            'name': nav(header, subtitle2) ??
+                (subtitleRuns.isNotEmpty ? subtitleRuns[0]['text'] : null),
+            'id': nav(header, ['subtitle', 'runs', 2] + navigation_browse_id),
+          };
+          if (subtitleRuns.length == 5) {
+            playlist['year'] = nav(header, subtitle3);
+          }
+        }
+
+        final dynamic secondSubtitleRunsRaw =
+            nav(header, ['secondSubtitle', 'runs']);
+        final List secondSubtitleRuns =
+            secondSubtitleRunsRaw is List ? secondSubtitleRunsRaw : [];
+        if (secondSubtitleRuns.isNotEmpty) {
+          final hasViews = (secondSubtitleRuns.length > 3) ? 2 : 0;
+          final hasDuration = (secondSubtitleRuns.length > 1) ? 2 : 0;
+
+          if (hasDuration > 0 &&
+              (hasViews + hasDuration) < secondSubtitleRuns.length) {
+            playlist['duration'] =
+                secondSubtitleRuns[hasViews + hasDuration]['text'];
+          }
+
+          if (hasViews < secondSubtitleRuns.length) {
+            final songCountText =
+                secondSubtitleRuns[hasViews]['text']?.toString() ?? '';
+            final countMatch = RegExp(r'[\d,]+').firstMatch(songCountText);
+            if (countMatch != null) {
+              final countStr = countMatch.group(0)!.replaceAll(',', '');
+              playlist['trackCount'] = int.tryParse(countStr);
+            }
+          }
         }
       }
 
-      final int secondSubtitleRunCount =
-          header['secondSubtitle']['runs'].length;
-      final String count = (((header['secondSubtitle']['runs']
-                      [secondSubtitleRunCount % 3]['text'])
-                  .split(' ')[0])
-              .split(',') as List)
-          .join();
-      final int songCount = int.parse(count);
-      if (header['secondSubtitle']['runs'].length > 1) {
-        playlist['duration'] = header['secondSubtitle']['runs']
-            [(secondSubtitleRunCount % 3) + 2]['text'];
-      }
-      playlist['trackCount'] = songCount;
-
-      // requestFunc(additionalParams) async => (await _sendRequest("browse", data,
-      //         additionalParams: additionalParams))
-      //     .data;
+      final int songCount = (playlist['trackCount'] as int?) ?? 0;
+      playlist['itemCount'] = playlist['trackCount']?.toString();
 
       requestFuncCountinuation(cont) async =>
-          (await _sendRequest("browse", {...data, ...cont})).data;
+          (await _sendRequest('browse', {...data, ...cont})).data;
 
-      if (songCount > 0) {
-        playlist['tracks'] = parsePlaylistItems(results['contents']);
-        limit = songCount;
+      final dynamic rawContents = results['contents'];
+      final List resultsContents = rawContents is List ? rawContents : [];
 
+      playlist['tracks'] = parsePlaylistItems(resultsContents);
+      if (resultsContents.isNotEmpty) {
+        final limitCount = songCount > 0 ? songCount : limit;
         List<dynamic> parseFunc(contents) => parsePlaylistItems(contents);
 
         playlist['tracks'] = [
           ...(playlist['tracks']),
           ...(await getContinuationsPlaylist(
             results,
-            limit,
+            limitCount,
             requestFuncCountinuation,
             parseFunc,
           )),

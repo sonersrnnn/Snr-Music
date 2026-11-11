@@ -329,9 +329,9 @@ class PlaylistScreenController extends PlaylistAlbumScreenControllerBase
         await _fetchSongOnline(playlistId, isIdOnly, isPipedPlaylist);
       }
       isContentFetched.value = true;
-    } catch (e) {
+    } catch (e, st) {
       // Handle any errors that occur during the fetch
-      printERROR("Error fetching playlist details: $e");
+      printERROR("Error fetching playlist details: $e\n$st");
     }
   }
 
